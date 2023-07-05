@@ -3,6 +3,7 @@ package com.example.activitytutorial
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import com.example.activitytutorial.databinding.ActivityDBinding
 
 class D : AppCompatActivity() {
@@ -20,5 +21,12 @@ class D : AppCompatActivity() {
             //intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intent)
         }
+
+        Log.d(ACTIVITY_TEST, "D Activity onCreate is called")
+
+    }
+
+    companion object {
+        const val ACTIVITY_TEST = "RajD"
     }
 }

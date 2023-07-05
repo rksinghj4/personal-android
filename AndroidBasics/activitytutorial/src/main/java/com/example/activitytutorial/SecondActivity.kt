@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.activitytutorial.MainActivity.Companion.ACTIVITY_TEST
 import com.example.activitytutorial.databinding.ActivitySecondBinding
 
 class SecondActivity : AppCompatActivity() {
@@ -62,6 +61,10 @@ class SecondActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(ACTIVITY_TEST, "SECOND Activity onDestroy is called")
+    }
+
+    companion object {
+        val ACTIVITY_TEST = "RajS"
     }
 
 }

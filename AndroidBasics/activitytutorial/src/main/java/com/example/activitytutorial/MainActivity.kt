@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        Log.d(MainActivity.ACTIVITY_TEST, "Activity onRestoreInstanceState is called")
+        Log.d(ACTIVITY_TEST, "Activity onRestoreInstanceState is called")
     }
 
 
@@ -80,6 +80,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        val ACTIVITY_TEST = "RAJ"
+        val ACTIVITY_TEST = "RajM"
     }
 }
