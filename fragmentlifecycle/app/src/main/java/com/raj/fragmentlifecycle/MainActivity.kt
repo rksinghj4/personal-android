@@ -1,10 +1,14 @@
 package com.raj.fragmentlifecycle
 
+import android.app.Activity
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.FrameLayout
-import androidx.activity.compose.setContent
+import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,11 +17,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
-import androidx.fragment.app.replace
 import com.raj.fragmentlifecycle.ui.theme.FragmentLifeCycleTheme
 
 class MainActivity : FragmentActivity() {
@@ -36,6 +36,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
         enableEdgeToEdge()
+
         nonComposeUI()
         /*setContent {
             FragmentLifeCycleTheme {
@@ -48,9 +49,28 @@ class MainActivity : FragmentActivity() {
         }*/
     }
 
+    /**
+     * In AndroidManifest file, for MainActivity we have
+     * android:configChanges="orientation|screenSize" then
+     *  on screen rotation - no other lifecycle method of activity is called.
+     *  only overridden onConfigurationChanged will be called.
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        Log.d(TAG, "onConfigurationChanged")
+
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Toast.makeText(this, "ORIENTATION_PORTRAIT", Toast.LENGTH_SHORT).show()
+        } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "ORIENTATION_LANDSCAPE", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun nonComposeUI() {
         setContentView(R.layout.activity_main)
-        findViewById<FrameLayout>(R.id.containerId)
+        /*supportFragmentManager.commit {
+            add(R.id.containerId, FragmentA())
+        }*/
         findViewById<Button>(R.id.addFragmentA).setOnClickListener {
             supportFragmentManager.commit {
                 add(R.id.containerId, FragmentA())
@@ -58,7 +78,7 @@ class MainActivity : FragmentActivity() {
         }
         findViewById<Button>(R.id.addFragmentB).setOnClickListener {
             supportFragmentManager.commit {
-                replace(R.id.containerId, FragmentB())
+                add(R.id.containerId, FragmentB())
                 addToBackStack("this-transaction")
             }
         }
@@ -123,7 +143,6 @@ class MainActivity : FragmentActivity() {
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart")
-
     }
 
     override fun onResume() {
@@ -134,6 +153,7 @@ class MainActivity : FragmentActivity() {
     override fun onPause() {
         super.onPause()
         Log.d(TAG, "onPause")
+        //finish()
     }
 
     override fun onStop() {
@@ -144,6 +164,29 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
+    }
+
+    override fun getOnBackInvokedDispatcher(): OnBackInvokedDispatcher {
+        return super.getOnBackInvokedDispatcher()
+        Log.d(TAG, "getOnBackInvokedDispatcher")
+
+    }
+
+    override fun onBackPressed() {
+       // super.onBackPressed() -> this will force the activity to finish()
+        Log.d(TAG, "onBackPressed")
+
+        // This is the correct method to move the entire task to the background
+        // The 'true' flag means it will be moved to the back, not finished.
+        //moveTaskToBack(true) //onBackPressed() -> onPause() -> onStop()
+
+        //Use either one way: Either moveTaskToBack(true) or below
+
+        //If we just use following code: onBackPressed() -> onPause() -> onStop()
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.addCategory(Intent.CATEGORY_HOME)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
     }
 
     companion object {
