@@ -9,44 +9,53 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
 import android.window.OnBackInvokedDispatcher
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
+import androidx.lifecycle.lifecycleScope
 import com.raj.fragmentlifecycle.ui.theme.FragmentLifeCycleTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
-        enableEdgeToEdge()
-
-        nonComposeUI()
-        /*setContent {
+       enableEdgeToEdge()
+        //nonComposeUI()
+        setContent {
             FragmentLifeCycleTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Surface(modifier = Modifier.padding(innerPadding)) {
-                        MainScreen()
-                    }
+                    MainScreen(innerPadding)
                 }
             }
-        }*/
+        }
     }
 
     /**
@@ -85,13 +94,17 @@ class MainActivity : FragmentActivity() {
     }
 
     @Composable
-    fun MainScreen() {
+    fun MainScreen(innerPadding: PaddingValues) {
         val fragmentStr = rememberSaveable {
             mutableStateOf(
                 "FragmentA"
             )
         }
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,12 +122,14 @@ class MainActivity : FragmentActivity() {
 
             Box(
                 modifier = Modifier
+                    .fillMaxHeight()
                     .fillMaxWidth()
-                    .fillMaxHeight(fraction = .2f),
+                    .background(Color.Cyan),
                 contentAlignment = Alignment.Center
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(modifier = Modifier.wrapContentSize(), onClick = {
@@ -130,7 +145,6 @@ class MainActivity : FragmentActivity() {
                         Text(text = "Add FragmentB")
                     }
                 }
-
             }
         }
     }
@@ -138,6 +152,13 @@ class MainActivity : FragmentActivity() {
     override fun onRestart() {
         super.onRestart()
         Log.d(TAG, "onRestart")
+
+
+        lifecycleScope.launch {
+            delay(2000) // simulate loading critical data
+            //(TTID will appear as Displayed, TTFD appears as Fully drawn.)
+            reportFullyDrawn()//Tells the system: "Now my app is fully ready for the user."
+        }
     }
 
     override fun onStart() {
@@ -173,7 +194,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onBackPressed() {
-       // super.onBackPressed() -> this will force the activity to finish()
+        // super.onBackPressed() -> this will force the activity to finish()
         Log.d(TAG, "onBackPressed")
 
         // This is the correct method to move the entire task to the background
