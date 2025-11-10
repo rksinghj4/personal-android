@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commit
+import androidx.fragment.app.replace
 import androidx.lifecycle.lifecycleScope
 import com.raj.fragmentlifecycle.ui.theme.FragmentLifeCycleTheme
 import kotlinx.coroutines.delay
@@ -47,15 +48,13 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
-       enableEdgeToEdge()
-        //nonComposeUI()
-        setContent {
+       //enableEdgeToEdge()
+        nonComposeUI()
+        /*setContent {
             FragmentLifeCycleTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(innerPadding)
-                }
+                MainScreen(innerPadding)
             }
-        }
+        }*/
     }
 
     /**
@@ -77,9 +76,9 @@ class MainActivity : FragmentActivity() {
 
     fun nonComposeUI() {
         setContentView(R.layout.activity_main)
-        /*supportFragmentManager.commit {
+        supportFragmentManager.commit {
             add(R.id.containerId, FragmentA())
-        }*/
+        }
         findViewById<Button>(R.id.addFragmentA).setOnClickListener {
             supportFragmentManager.commit {
                 add(R.id.containerId, FragmentA())
@@ -87,7 +86,7 @@ class MainActivity : FragmentActivity() {
         }
         findViewById<Button>(R.id.addFragmentB).setOnClickListener {
             supportFragmentManager.commit {
-                add(R.id.containerId, FragmentB())
+                replace(R.id.containerId, FragmentB())
                 addToBackStack("this-transaction")
             }
         }
@@ -116,7 +115,11 @@ class MainActivity : FragmentActivity() {
                 }
 
                 if (fragmentStr.value == "FragmentB") {
-                    FragmentInCompose(FragmentB())
+                    val fragmentB = FragmentB()
+                    val bundle = Bundle()
+                    bundle.putString("WhichFragment", "FragmentB")
+                    fragmentB.arguments = bundle
+                    FragmentInCompose(fragmentB)
                 }
             }
 
@@ -182,6 +185,11 @@ class MainActivity : FragmentActivity() {
         Log.d(TAG, "onStop")
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.d(TAG, "onSaveInstanceState")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
@@ -194,7 +202,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onBackPressed() {
-        // super.onBackPressed() -> this will force the activity to finish()
+        super.onBackPressed() //-> this will force the activity to finish()
         Log.d(TAG, "onBackPressed")
 
         // This is the correct method to move the entire task to the background
@@ -204,10 +212,10 @@ class MainActivity : FragmentActivity() {
         //Use either one way: Either moveTaskToBack(true) or below
 
         //If we just use following code: onBackPressed() -> onPause() -> onStop()
-        val intent = Intent(Intent.ACTION_MAIN)
+       /* val intent = Intent(Intent.ACTION_MAIN)
         intent.addCategory(Intent.CATEGORY_HOME)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
+        startActivity(intent)*/
     }
 
     companion object {

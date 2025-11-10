@@ -52,7 +52,9 @@ fun FragmentInCompose(fragment: Fragment, modifier: Modifier = Modifier) {
 
             fragmentManager.commit {
                 add(containerId, fragment)
-                addToBackStack("null")//Transaction name bhi kah sakte hain
+                if (fragment.arguments?.getString("WhichFragment", "") == "FragmentB"){
+                    addToBackStack("nameForBackStackState")//Transaction name bhi kah sakte hain
+                }
             }
         })
 
@@ -66,7 +68,7 @@ fun FragmentInCompose(fragment: Fragment, modifier: Modifier = Modifier) {
                 //Evey time we need new transaction object to commit operations.
                 //One transaction object can commit only once.
 
-                /*fragmentManager.commit {
+               /* fragmentManager.commit {
                     Log.d("FragmentRemoved", "DisposableEffect - onDispose")
                     remove(existingFragment)
                 }*/
